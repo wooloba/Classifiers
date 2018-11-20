@@ -97,7 +97,12 @@ class NaiveBayes(Classifier):
         """
 
         ### YOUR CODE HERE
-
+        #(5000,9)
+        self.numclasses = Xtrain.shape[0]
+        self.numfeatures = Xtrain.shape[1]
+        print(Xtrain.shape)
+        print(Xtrain[0])
+        print(ytrain)
         ### END YOUR CODE
 
         origin_shape = (self.numclasses, self.numfeatures)
@@ -105,6 +110,36 @@ class NaiveBayes(Classifier):
         self.stds = np.zeros(origin_shape)
 
         ### YOUR CODE HERE
+        # mu j,c
+        for i in range(self.numfeatures):
+            feature_mean_c1 = 0
+            feature_mean_c0 = 0
+            print(i)
+            for j in range(self.numclasses):
+                #class is 1
+                if ytrain[j] == 1:
+                    feature_mean_c1 += Xtrain[j,i]
+                #class is 0
+                else:
+                    feature_mean_c0 += Xtrain[j,i]
+            #mu j,c. Where j is feature(8/9), c is class{0,1}
+            # 0 -> class = 0; 1-> class = 1
+            np.append(self.means,[feature_mean_c0/(self.numclasses-sum(ytrain)),feature_mean_c1/(sum(ytrain))])
+
+        #sigma j,c
+        for i in range(self.numfeatures):
+            feature_sigma_c1 = 0
+            feature_sigma_c0 = 0
+            for j in range(self.numclasses):
+                #class is 1
+                if ytrain[j] == 1:
+                    feature_sigma_c1 += (Xtrain[j,i] - self.means[i][1])**2
+                #class is 0
+                else:
+                    feature_sigma_c0 += (Xtrain[j,i] - self.means[i][0])**2
+            #sigma j,c
+            # 0 -> class = 0; 1-> class = 1
+            np.append(self.stds,[feature_sigma_c0/(self.numclasses-sum(ytrain)),feature_sigma_c1/(sum(ytrain))])
 
         ### END YOUR CODE
 
