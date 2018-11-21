@@ -86,9 +86,12 @@ class NaiveBayes(Classifier):
         self.numfeatures = 0
         self.numclasses = 0
 
+        #P(y=0) & P(y=1)
+        self.py0 = 0.0
+        self.py1 = 0.0
     def learn(self, Xtrain, ytrain):
         """
-        In the first code block, you should set self.numclasses and
+        In the first code block, you should set sample_num and
         self.numfeatures correctly based on the inputs and the given parameters
         (use the column of ones or not).
 
@@ -97,12 +100,17 @@ class NaiveBayes(Classifier):
         """
 
         ### YOUR CODE HERE
-        #(5000,9)
-        self.numclasses = Xtrain.shape[0]
-        self.numfeatures = Xtrain.shape[1]
-        print(Xtrain.shape)
-        print(Xtrain[0])
-        print(ytrain)
+        self.numclasses = 2
+        sample_num = Xtrain.shape[0]
+        if self.params['usecolumnones']:
+            self.numfeatures = Xtrain.shape[1]
+        else:
+            self.numfeatures = Xtrain.shape[1]-1
+
+
+        self.py0 = (sample_num-sum(ytrain))/sample_num
+        self.py1 = (sum(ytrain))/sample_num
+
         ### END YOUR CODE
 
         origin_shape = (self.numclasses, self.numfeatures)
@@ -114,8 +122,7 @@ class NaiveBayes(Classifier):
         for i in range(self.numfeatures):
             feature_mean_c1 = 0
             feature_mean_c0 = 0
-            print(i)
-            for j in range(self.numclasses):
+            for j in range(sample_num):
                 #class is 1
                 if ytrain[j] == 1:
                     feature_mean_c1 += Xtrain[j,i]
@@ -124,24 +131,27 @@ class NaiveBayes(Classifier):
                     feature_mean_c0 += Xtrain[j,i]
             #mu j,c. Where j is feature(8/9), c is class{0,1}
             # 0 -> class = 0; 1-> class = 1
-            np.append(self.means,[feature_mean_c0/(self.numclasses-sum(ytrain)),feature_mean_c1/(sum(ytrain))])
+
+            self.means[0][i] = feature_mean_c0/(sample_num-sum(ytrain))
+            self.means[1][i] = feature_mean_c1/(sum(ytrain))
 
         #sigma j,c
         for i in range(self.numfeatures):
             feature_sigma_c1 = 0
             feature_sigma_c0 = 0
-            for j in range(self.numclasses):
+            for j in range(sample_num):
                 #class is 1
                 if ytrain[j] == 1:
-                    feature_sigma_c1 += (Xtrain[j,i] - self.means[i][1])**2
+                    feature_sigma_c1 += (Xtrain[j,i] - self.means[0][i])**2
                 #class is 0
                 else:
-                    feature_sigma_c0 += (Xtrain[j,i] - self.means[i][0])**2
+                    feature_sigma_c0 += (Xtrain[j,i] - self.means[0][i])**2
             #sigma j,c
             # 0 -> class = 0; 1-> class = 1
-            np.append(self.stds,[feature_sigma_c0/(self.numclasses-sum(ytrain)),feature_sigma_c1/(sum(ytrain))])
-
+            self.stds[0][i] = feature_sigma_c0/(sample_num-sum(ytrain))
+            self.stds[1][i] = feature_sigma_c1/(sum(ytrain))
         ### END YOUR CODE
+
 
         assert self.means.shape == origin_shape
         assert self.stds.shape == origin_shape
@@ -153,11 +163,22 @@ class NaiveBayes(Classifier):
         """
         ytest = np.zeros(Xtest.shape[0], dtype=int)
 
+        sample_num = Xtest.shape[0]
         ### YOUR CODE HERE
+        for i in range(sample_num):
+            pxy_c1 = 1.0
+            pxy_c0 = 1.0
+
+            for j in range(self.numfeatures):
+                pxy_c0 *= (1 / np.sqrt(2 * np.pi * self.stds[0][j])) * np.exp(-np.square(Xtest[i][j] - self.means[0][j]) / (2 * self.stds[0][j]))
+                pxy_c1 *= (1 / np.sqrt(2 * np.pi * self.stds[1][j])) * np.exp(-np.square(Xtest[i][j] - self.means[1][j]) / (2 * self.stds[1][j]))
+
+            ytest[i] = np.argmax([pxy_c0*self.py0,pxy_c1*self.py1])
 
         ### END YOUR CODE
 
         assert len(ytest) == Xtest.shape[0]
+
         return ytest
 
 class LogitReg(Classifier):
