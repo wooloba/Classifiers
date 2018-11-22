@@ -226,11 +226,17 @@ class LogitReg(Classifier):
         """
         Learn the weights using the training data
         """
-
+        #Xtrain = np.delete(Xtrain,8,axis=1)
         self.weights = np.zeros(Xtrain.shape[1],)
-
         ### YOUR CODE HERE
+        learning_rate = self.params['regwgt']
+        iter = 0
 
+        while iter < 25:
+            for i in range(ytrain.shape[0]):
+                self.weights = self.weights - learning_rate*np.dot(utils.sigmoid(np.dot(Xtrain[i],self.weights))-ytrain[i],Xtrain[i])
+
+            iter +=1
         ### END YOUR CODE
 
     def predict(self, Xtest):
@@ -238,12 +244,16 @@ class LogitReg(Classifier):
         Use the parameters computed in self.learn to give predictions on new
         observations.
         """
+        #Xtest = np.delete(Xtest, 8, axis=1)
         ytest = np.zeros(Xtest.shape[0], dtype=int)
 
         ### YOUR CODE HERE
+        ytest = utils.sigmoid(np.dot(self.weights,Xtest.T))
+
+        ytest[ytest >= 0.5] = 1
+        ytest[ytest < 0.5] = 0
 
         ### END YOUR CODE
-
         assert len(ytest) == Xtest.shape[0]
         return ytest
 
@@ -308,6 +318,14 @@ class NeuralNet(Classifier):
         assert nabla_input.shape == self.w_input.shape
         assert nabla_output.shape == self.w_output.shape
         return (nabla_input, nabla_output)
+
+    def learn(self, Xtrain, ytrain):
+
+        return
+
+    def predict(self, Xtest):
+        ytest = np.zeros(Xtest.shape[0])
+        return ytest
 
     # TODO: implement learn and predict functions
 
