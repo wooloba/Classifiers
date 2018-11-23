@@ -392,43 +392,46 @@ class KernelLogitReg(LogitReg):
         Ktrain the is the kernel representation of the Xtrain.
         """
         self.Xtrain = Xtrain
-        self.center = 20
-        Ktrain = Xtrain
+        self.center = Xtrain[:20]
 
         ### YOUR CODE HERE
         if self.params['kernel'] == 'linear':
-            Ktrain = np.dot(Xtrain, self.Xtrain[:self.center].T)
+            Ktrain = np.dot(Xtrain, self.center.T)
         elif self.params['kernel'] == 'hamming':
-            Ktrain = self.hamming(Xtrain)
+            Ktrain = np.zeros(shape=(Xtrain.shape[0],len(self.center)))
+            for i in range(Ktrain.shape[0]):
+                for j in range(Ktrain.shape[1]):
+                    Ktrain[i, j] = self.hammingDistance(Xtrain[i], self.center[j])
 
-            #Ktrain = np.dot(Xtrain,Xtrain[:20].T)
+        elif self.params['kernel'] == 'None':
+            Ktrain = Xtrain
 
         ### END YOUR CODE
-
         self.weights = np.zeros(Ktrain.shape[1],)
-
         ### YOUR CODE HERE
         learning_rate = self.params['regwgt']
         iter = 0
-
         while iter < 50:
             for i in range(ytrain.shape[0]):
                 self.weights = self.weights - learning_rate * np.dot(utils.sigmoid(np.dot(Ktrain[i], self.weights)) - ytrain[i], Ktrain[i])
 
             iter += 1
-
         ### END YOUR CODE
-
         self.transformed = Ktrain # Don't delete this line. It's for evaluation.
 
     # TODO: implement necessary functions
     def predict(self, Xtest):
-
         if self.params['kernel'] == 'linear':
-            Ktest = np.dot(Xtest, self.Xtrain[:self.center].T)
+            Ktest = np.dot(Xtest, self.center.T)
         elif self.params['kernel'] == 'hamming':
-            Ktest = self.hamming(Xtest)
+            Ktest = np.zeros((Xtest.shape[0], len(self.center)))
 
+            for i in range(Ktest.shape[0]):
+                for j in range(Ktest.shape[1]):
+                    Ktest[i][j] = self.hammingDistance(Xtest[i], self.center[j])
+
+        elif self.params['kernel'] == 'None':
+            Ktest = Xtest
 
         ytest = utils.sigmoid(np.dot(self.weights,Ktest.T ))
 
@@ -439,14 +442,6 @@ class KernelLogitReg(LogitReg):
         assert len(ytest) == Xtest.shape[0]
         return ytest
 
-    def hamming(self,X):
-        Ktrain = np.zeros((X.shape[0], self.center))
-
-        for i in range(Ktrain.shape[0]):
-            for j in range(Ktrain.shape[1]):
-                Ktrain[i][j] = self.hammingDistance(X[i], self.Xtrain[:self.center][j])
-
-        return Ktrain
 
     def hammingDistance(self,a,b):
         dis = 0
@@ -455,6 +450,7 @@ class KernelLogitReg(LogitReg):
                 dis += 1
 
         return dis
+
 # ======================================================================
 
 def test_lr():

@@ -25,34 +25,79 @@ def geterror(ytest, predictions):
 # classalgs - a dictionary mapping algorithm names to algorithm instances
 #
 # example:
-# classalgs = {
-#   'nn_0.01': algs.NeuralNet({ 'regwgt': 0.01 }),
-#   'nn_0.1':  algs.NeuralNet({ 'regwgt': 0.1  }),
-# }
+classalgs = {
+  'Logistic Regression': algs.LogitReg(),
+    'Neural Network': algs.NeuralNet({'epochs': 100})
+}
+
+parameters = (
+        #{'regwgt': 0.0, 'nh': 4},
+        {'regwgt': 0.01, 'nh': 8},
+        {'regwgt': 0.05, 'nh': 16},
+        {'regwgt': 0.1, 'nh': 32},
+                      )
+
 
 def cross_validate(K, X, Y, classalgs):
-    for k in range(K):
-        for learnername in classalgs:
-            print('make this work')
+    errors = {}
+    numparams = len(parameters)
 
-    best_algorithm = classalgs[learnername]
+    for learnername in classalgs:
+        errors[learnername] = np.zeros((numparams))
+
+    set_len = len(X) / K
+
+    for k in range(K):
+        for p in range(numparams):
+            params = parameters[p]
+
+            for learnername,learner in classalgs.items():
+                start = k*set_len
+                Xtest_set = X[start:start+set_len]
+                Ytest_set = Y[start:start+set_len]
+                Xtrain_set = np.concatenate((X[0:start],X[start+set_len:len(X)]),axis=0)
+                Ytrain_set =  np.concatenate((Y[0:start],Y[start+set_len:len(Y)]),axis=0)
+
+                # Reset learner for new parameters
+                learner.reset(params)
+                print ('Running learner = ' + learnername + ' on parameters ' + str(learner.getparams()))
+                # Train model
+                learner.learn(Xtrain_set, Ytrain_set)
+                # Test model
+                predictions = learner.predict(Xtest_set)
+                error = geterror(Ytest_set, predictions)
+                print ('Error for ' + learnername + ': ' + str(error))
+                errors[learnername][p] = error
+
+    for learnername, learner in classalgs.items():
+        besterror = np.mean(errors[learnername][0,:])
+        bestparams = 0
+        for p in range(numparams):
+            aveerror = np.mean(errors[learnername][p,:])
+            if aveerror < besterror:
+                besterror = aveerror
+                bestparams = p
+
+
+    best_algorithm = classalgs[p]
     return best_algorithm
 
 
 if __name__ == '__main__':
+
     trainsize = 5000
     testsize = 5000
     numruns = 10
 
     classalgs = {
-                #'Random': algs.Classifier(),
-                 #'Naive Bayes': algs.NaiveBayes({'usecolumnones': False}),
-                 #'Naive Bayes Ones': algs.NaiveBayes({'usecolumnones': True})
-                 # 'Linear Regression': algs.LinearRegressionClass(),
-                  #  'Logistic Regression': algs.LogitReg(),
-                  #'Neural Network': algs.NeuralNet({'epochs': 100})
-                   # 'KernelLogitReg':algs.KernelLogitReg({'kernel':'linear','regwgt': 0.01, 'regularizer': 'None'})
-                    'KernelLogitReg': algs.KernelLogitReg({'kernel': 'hamming', 'regwgt': 0.01, 'regularizer': 'None'})
+                'Random': algs.Classifier(),
+                 'Naive Bayes': algs.NaiveBayes({'usecolumnones': False}),
+                 'Naive Bayes Ones': algs.NaiveBayes({'usecolumnones': True}),
+                 'Linear Regression': algs.LinearRegressionClass(),
+                   'Logistic Regression': algs.LogitReg(),
+                  'Neural Network': algs.NeuralNet({'epochs': 100}),
+                   'LinearKernelLogitReg':algs.KernelLogitReg({'kernel':'linear','regwgt': 0.01, 'regularizer': 'None'}),
+                    'HammingKernelLogitReg': algs.KernelLogitReg({'kernel': 'hamming', 'regwgt': 0.01, 'regularizer': 'None'})
     }
     numalgs = len(classalgs)
 
@@ -69,6 +114,9 @@ if __name__ == '__main__':
         errors[learnername] = np.zeros((numparams,numruns))
 
     for r in range(numruns):
+        '''
+        To run hamming distance kernel, please comment out line 75 and uncomment line 77
+        '''
         trainset, testset = dtl.load_susy(trainsize,testsize)
         #trainset, testset = dtl.load_susy_complete(trainsize,testsize)
         #trainset, testset = dtl.load_census(trainsize,testsize)
@@ -88,7 +136,6 @@ if __name__ == '__main__':
                 error = geterror(testset[1], predictions)
                 print ('Error for ' + learnername + ': ' + str(error))
                 errors[learnername][p,r] = error
-
 
     for learnername, learner in classalgs.items():
         besterror = np.mean(errors[learnername][0,:])
