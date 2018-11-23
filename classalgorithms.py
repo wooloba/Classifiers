@@ -298,16 +298,16 @@ class NeuralNet(Classifier):
         Returns the output of the current neural network for the given input
         """
         # hidden activations
-        a_hidden = self.transfer(np.dot(self.w_input, inputs))
+        a_hidden = self.transfer(np.dot(inputs,self.w_input))
         #print(self.w_input.shape,inputs.shape,a_hidden.shape) #---->((nh, 9), (9,), (nh,))
 
         # output activations
-        a_output = self.transfer(np.dot(self.w_output, a_hidden))
+        a_output = self.transfer(np.dot(a_hidden, self.w_output))
         #print(self.w_output.shape,a_hidden.shape,a_output.shape) # ------>((1, nh), (nh,), (1,))
 
         return (a_hidden, a_output)
 
-    def backprop(self, err, ao,ah,xi):
+    def backprop(self, x,y):
         """
         Return a tuple ``(nabla_input, nabla_output)`` representing the gradients
         for the cost function with respect to self.w_input and self.w_output.
@@ -321,55 +321,40 @@ class NeuralNet(Classifier):
         # return (nabla_input, nabla_output)
 
     def learn(self, Xtrain, ytrain):
-        #Xtrain = np.delete(Xtrain, 8, axis=1)
+
+        print(self.params)
+
         # W(1) 9xnh
         self.w_input = np.random.normal(0.0,1.0,(Xtrain.shape[1], self.params["nh"]))
 
         # W(2) nhx1
-        self.w_output = np.random.normal(0.0,1.0,(self.w_input.shape[0],1))
+        self.w_output = np.random.normal(0.0,1.0,(self.params["nh"],1))
 
-        #hidden_unit = np.zeros(self.params['nh'])
         iter = 0
-
-        while iter < self.params['epochs']:
-
-            #for i in range(Xtrain.shape[0]):
+        while iter <= self.params['epochs']:
             #1. forward propagate, ao---> predict,y_hat
             ah,ao = self.feedforward(Xtrain)
 
+            # back_probagation
+            error = np.reshape(ytrain,[ytrain.shape[0],1] ) - ao
 
-            # BP step
-            error = ytrain - ao
             d_W_output = error * utils.dsigmoid(ao)
-            d_W_output = np.dot(d_W_output,ah.T)
+            d_W_output = np.dot(ah.T,d_W_output)
 
-            d_W_input = np.dot(self.w_output.T,d_W_output)
-            d_W_input = np.dot(d_W_input,(1-ah))
 
-            d_W_input = np.dot(d_W_input,Xtrain)
+            d_W_input = np.dot(error * utils.dsigmoid(ao),self.w_output.T)
+            d_W_input = d_W_input *utils.dsigmoid(ah)
 
-            #d_W_input = utils.dsigmoid(ah)  * np.matmul(utils.dsigmoid(ah)*error,self.w_output)
-            #print(d_W_input.shape)
-            #d_W_input = np.matmul(d_W_input,Xtrain)
+            d_W_input = np.dot(Xtrain.T,d_W_input)
 
-            # update weights
             self.w_output += self.params['stepsize'] * d_W_output
             self.w_input += self.params['stepsize'] * d_W_input
-
-            #print(d_W_input.shape)
-
-            # (d_W_input, d_W_output) = self.backprop(err, ao,ah,Xtrain)
-
-            #self.w_input -= self.params['stepsize']* d_W_input
-            #self.w_output -= self.params['stepsize']*d_W_output
-
-           #4,9 x 4,1 x 4,1  1,9
 
             iter += 1
         return
 
     def predict(self, Xtest):
-        Xtest = np.delete(Xtest, 8, axis=1)
+        #Xtest = np.delete(Xtest, 8, axis=1)
         ytest = np.zeros(Xtest.shape[0])
         for i in range(len(Xtest)):
             ah,ao = self.feedforward(Xtest[i])

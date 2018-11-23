@@ -13,7 +13,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/Classifiers$script_classify.coverage" NAME="script_classify Coverage Results" MODIFIED="1542945283998" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Classifiers$script_classify.coverage" NAME="script_classify Coverage Results" MODIFIED="1542947375664" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
@@ -44,14 +44,13 @@
       <file leaf-file-name="classalgorithms.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/classalgorithms.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="321" column="0" lean-forward="true" selection-start-line="321" selection-start-column="0" selection-end-line="321" selection-end-column="0" />
+            <state relative-caret-position="257">
+              <caret line="336" column="0" lean-forward="true" selection-start-line="336" selection-start-column="0" selection-end-line="336" selection-end-column="0" />
               <folding>
                 <element signature="e#0#58#0" expanded="true" />
                 <element signature="e#6737#6924#0" expanded="false" />
                 <element signature="e#6978#7167#0" expanded="false" />
-                <element signature="e#10237#10628#0" expanded="false" />
-                <marker date="1542945331703" expanded="true" signature="11953:12038" ph="..." />
+                <element signature="e#10226#10617#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -247,8 +246,7 @@
             <element signature="e#0#58#0" expanded="true" />
             <element signature="e#6737#6924#0" expanded="false" />
             <element signature="e#6978#7167#0" expanded="false" />
-            <element signature="e#10237#10628#0" expanded="false" />
-            <marker date="1542945331703" expanded="true" signature="11953:12038" ph="..." />
+            <element signature="e#10226#10617#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -292,14 +290,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/classalgorithms.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="321" column="0" lean-forward="true" selection-start-line="321" selection-start-column="0" selection-end-line="321" selection-end-column="0" />
+        <state relative-caret-position="257">
+          <caret line="336" column="0" lean-forward="true" selection-start-line="336" selection-start-column="0" selection-end-line="336" selection-end-column="0" />
           <folding>
             <element signature="e#0#58#0" expanded="true" />
             <element signature="e#6737#6924#0" expanded="false" />
             <element signature="e#6978#7167#0" expanded="false" />
-            <element signature="e#10237#10628#0" expanded="false" />
-            <marker date="1542945331703" expanded="true" signature="11953:12038" ph="..." />
+            <element signature="e#10226#10617#0" expanded="false" />
           </folding>
         </state>
       </provider>
