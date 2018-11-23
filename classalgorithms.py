@@ -299,13 +299,15 @@ class NeuralNet(Classifier):
         """
         # hidden activations
         a_hidden = self.transfer(np.dot(self.w_input, inputs))
+        #print(self.w_input.shape,inputs.shape,a_hidden.shape) #---->((nh, 9), (9,), (nh,))
 
         # output activations
         a_output = self.transfer(np.dot(self.w_output, a_hidden))
+        #print(self.w_output.shape,a_hidden.shape,a_output.shape) # ------>((1, nh), (nh,), (1,))
 
         return (a_hidden, a_output)
 
-    def backprop(self, x, y):
+    def backprop(self, err, ao,ah,xi):
         """
         Return a tuple ``(nabla_input, nabla_output)`` representing the gradients
         for the cost function with respect to self.w_input and self.w_output.
@@ -314,17 +316,67 @@ class NeuralNet(Classifier):
         ### YOUR CODE HERE
 
         ### END YOUR CODE
-
-        assert nabla_input.shape == self.w_input.shape
-        assert nabla_output.shape == self.w_output.shape
-        return (nabla_input, nabla_output)
+        # assert nabla_input.shape == self.w_input.shape
+        # assert nabla_output.shape == self.w_output.shape
+        # return (nabla_input, nabla_output)
 
     def learn(self, Xtrain, ytrain):
+        #Xtrain = np.delete(Xtrain, 8, axis=1)
+        # W(1) 9xnh
+        self.w_input = np.random.normal(0.0,1.0,(Xtrain.shape[1], self.params["nh"]))
 
+        # W(2) nhx1
+        self.w_output = np.random.normal(0.0,1.0,(self.w_input.shape[0],1))
+
+        #hidden_unit = np.zeros(self.params['nh'])
+        iter = 0
+
+        while iter < self.params['epochs']:
+
+            #for i in range(Xtrain.shape[0]):
+            #1. forward propagate, ao---> predict,y_hat
+            ah,ao = self.feedforward(Xtrain)
+
+
+            # BP step
+            error = ytrain - ao
+            d_W_output = error * utils.dsigmoid(ao)
+            d_W_output = np.dot(d_W_output,ah.T)
+
+            d_W_input = np.dot(self.w_output.T,d_W_output)
+            d_W_input = np.dot(d_W_input,(1-ah))
+
+            d_W_input = np.dot(d_W_input,Xtrain)
+
+            #d_W_input = utils.dsigmoid(ah)  * np.matmul(utils.dsigmoid(ah)*error,self.w_output)
+            #print(d_W_input.shape)
+            #d_W_input = np.matmul(d_W_input,Xtrain)
+
+            # update weights
+            self.w_output += self.params['stepsize'] * d_W_output
+            self.w_input += self.params['stepsize'] * d_W_input
+
+            #print(d_W_input.shape)
+
+            # (d_W_input, d_W_output) = self.backprop(err, ao,ah,Xtrain)
+
+            #self.w_input -= self.params['stepsize']* d_W_input
+            #self.w_output -= self.params['stepsize']*d_W_output
+
+           #4,9 x 4,1 x 4,1  1,9
+
+            iter += 1
         return
 
     def predict(self, Xtest):
+        Xtest = np.delete(Xtest, 8, axis=1)
         ytest = np.zeros(Xtest.shape[0])
+        for i in range(len(Xtest)):
+            ah,ao = self.feedforward(Xtest[i])
+            if ao >= 0.5:
+                ytest[i] = 1
+            else:
+                ytest[i] = 0
         return ytest
 
     # TODO: implement learn and predict functions
