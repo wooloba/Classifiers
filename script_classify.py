@@ -50,12 +50,14 @@ if __name__ == '__main__':
                  #'Naive Bayes Ones': algs.NaiveBayes({'usecolumnones': True})
                  # 'Linear Regression': algs.LinearRegressionClass(),
                   #  'Logistic Regression': algs.LogitReg(),
-                  'Neural Network': algs.NeuralNet({'epochs': 100})
-                }
+                  #'Neural Network': algs.NeuralNet({'epochs': 100})
+                   # 'KernelLogitReg':algs.KernelLogitReg({'kernel':'linear','regwgt': 0.01, 'regularizer': 'None'})
+                    'KernelLogitReg': algs.KernelLogitReg({'kernel': 'hamming', 'regwgt': 0.01, 'regularizer': 'None'})
+    }
     numalgs = len(classalgs)
 
     parameters = (
-        {'regwgt': 0.0, 'nh': 4},
+        #{'regwgt': 0.0, 'nh': 4},
         {'regwgt': 0.01, 'nh': 8},
         {'regwgt': 0.05, 'nh': 16},
         {'regwgt': 0.1, 'nh': 32},
